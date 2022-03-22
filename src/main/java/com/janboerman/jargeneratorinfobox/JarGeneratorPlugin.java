@@ -23,7 +23,9 @@ import java.util.OptionalInt;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Jar Generator"
+	name = "Jar Generator",
+	description = "Overlays impling jar generator charges",
+	tags = {"impling", "jar", "generator", "charge"}
 )
 public class JarGeneratorPlugin extends Plugin
 {
