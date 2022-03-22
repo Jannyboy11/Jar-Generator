@@ -1,6 +1,8 @@
 package com.janboerman.jargeneratorinfobox;
 
 import javax.inject.Inject;
+
+import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -9,6 +11,7 @@ import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -31,6 +34,12 @@ public class JarGeneratorPlugin extends Plugin
 
 	@Inject private Client client;
 	@Inject private InfoBoxManager infoBoxManager;
+	@Inject private JarGeneratorConfig config;
+
+	@Provides
+	JarGeneratorConfig getConfig(ConfigManager configManager) {
+		return configManager.getConfig(JarGeneratorConfig.class);
+	}
 
 	@Override
 	protected void startUp() throws Exception
@@ -41,7 +50,7 @@ public class JarGeneratorPlugin extends Plugin
 
 		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY);
 		if (inventoryContainer != null && inventoryContainer.contains(JAR_GENERATOR_ITEM_ID)) {
-			infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, 0);
+			infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, config.charges());
 			infoBoxManager.addInfoBox(infoBox);
 		}
 	}
@@ -71,6 +80,7 @@ public class JarGeneratorPlugin extends Plugin
 				infoBoxManager.addInfoBox(infoBox);
 			} else {
 				infoBox.setCharges(charge);
+				config.charges(charge);
 			}
 		}
 	}
@@ -81,7 +91,7 @@ public class JarGeneratorPlugin extends Plugin
 		if (itemContainer.getId() == InventoryID.INVENTORY.getId()) {
 			if (client.getItemContainer(InventoryID.INVENTORY).contains(JAR_GENERATOR_ITEM_ID)) {
 				if (infoBox == null) {
-					infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, 0);
+					infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, config.charges());
 					infoBoxManager.addInfoBox(infoBox);
 				}
 			} else {
