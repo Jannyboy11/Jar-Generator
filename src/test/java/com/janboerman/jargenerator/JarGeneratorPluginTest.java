@@ -1,4 +1,4 @@
-package com.janboerman.jargeneratorinfobox;
+package com.janboerman.jargenerator;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;

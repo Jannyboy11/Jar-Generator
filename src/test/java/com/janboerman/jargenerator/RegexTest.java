@@ -1,4 +1,4 @@
-package com.janboerman.jargeneratorinfobox;
+package com.janboerman.jargenerator;
 
 import static org.junit.Assert.*;
 import org.junit.Test;

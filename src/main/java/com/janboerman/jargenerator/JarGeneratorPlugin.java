@@ -1,4 +1,4 @@
-package com.janboerman.jargeneratorinfobox;
+package com.janboerman.jargenerator;
 
 import javax.inject.Inject;
 

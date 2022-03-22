@@ -1,4 +1,4 @@
-package com.janboerman.jargeneratorinfobox;
+package com.janboerman.jargenerator;
 
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.infobox.Counter;
