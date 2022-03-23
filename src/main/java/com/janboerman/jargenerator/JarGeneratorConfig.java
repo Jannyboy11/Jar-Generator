@@ -2,7 +2,7 @@ package com.janboerman.jargenerator;
 
 import net.runelite.client.config.*;
 
-@ConfigGroup("Jar Generator")
+@ConfigGroup("JarGenerator")
 public interface JarGeneratorConfig extends Config {
 
     @ConfigItem(keyName = "charges", name = "", description = "", hidden = true)
