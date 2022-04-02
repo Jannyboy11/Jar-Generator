@@ -22,7 +22,7 @@ public class JarGeneratorLingoTest {
     }
 
     @Test
-    public void testFourtyTwo() {
+    public void testFortyTwo() {
         final Charges expected = Charges.known(42);
         final Charges actual = JarGeneratorLingo.interpret("You have 42 charges left in your jar generator.");
 
