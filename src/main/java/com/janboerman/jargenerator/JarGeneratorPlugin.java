@@ -6,20 +6,16 @@ import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
-import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.events.ChatMessage;
-import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.api.events.ScriptCallbackEvent;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
-import net.runelite.client.util.ImageUtil;
-
-import java.awt.image.BufferedImage;
-import java.util.OptionalInt;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 @Slf4j
 @PluginDescriptor(
@@ -29,13 +25,13 @@ import java.util.OptionalInt;
 )
 public class JarGeneratorPlugin extends Plugin
 {
-	private static final int JAR_GENERATOR_ITEM_ID = ItemID.JAR_GENERATOR; //11258
+	static final int JAR_GENERATOR_ITEM_ID = ItemID.JAR_GENERATOR; // 11258
 
-	private BufferedImage jarGeneratorImage;
-	private JarGeneratorInfoBox infoBox;
+	private Charges currentCharges = Charges.unknown();
+	private JarGeneratorOverlay jarGeneratorOverlay;
 
 	@Inject private Client client;
-	@Inject private InfoBoxManager infoBoxManager;
+	@Inject private OverlayManager overlayManager;
 	@Inject private JarGeneratorConfig config;
 
 	@Provides
@@ -44,29 +40,34 @@ public class JarGeneratorPlugin extends Plugin
 	}
 
 	@Override
-	protected void startUp() throws Exception
-	{
+	protected void startUp() {
 		log.info("Jar Generator started!");
 
-		jarGeneratorImage = ImageUtil.loadImageResource(JarGeneratorPlugin.class, "/jar_generator.png");
-
-		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY);
-		if (inventoryContainer != null && inventoryContainer.contains(JAR_GENERATOR_ITEM_ID)) {
-			infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, config.charges());
-			infoBoxManager.addInfoBox(infoBox);
-		}
+		setCharges(Charges.probably(config.charges()));
+		jarGeneratorOverlay = new JarGeneratorOverlay(this, config);
+		overlayManager.add(jarGeneratorOverlay);
 	}
 
 	@Override
-	protected void shutDown() throws Exception
-	{
+	protected void shutDown() {
 		log.info("Jar Generator stopped!");
 
-		if (infoBox != null) {
-			infoBoxManager.removeInfoBox(infoBox);
-		}
+		overlayManager.remove(jarGeneratorOverlay);
+		jarGeneratorOverlay = null;
+		setCharges(Charges.probably(getCharges().getAmount()));
+	}
 
-		jarGeneratorImage = null;
+	public Charges getCharges() {
+		return currentCharges;
+	}
+
+	public void setCharges(Charges charges) {
+		log.debug("Set charges to " + charges);
+		this.currentCharges = charges;
+
+		if (!(charges instanceof Unknown)) {
+			this.config.charges(charges.getAmount());
+		}
 	}
 
 	@Subscribe
@@ -74,32 +75,29 @@ public class JarGeneratorPlugin extends Plugin
 		if (event.getType() != ChatMessageType.GAMEMESSAGE) return;
 
 		String text = event.getMessage();
-		OptionalInt charges = JarGeneratorLingo.interpret(text);
-		if (charges.isPresent()) {
-			int charge = charges.getAsInt();
-			if (infoBox == null) {
-				infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, charge);
-				infoBoxManager.addInfoBox(infoBox);
-			} else {
-				infoBox.setCharges(charge);
-				config.charges(charge);
-			}
+		Charges charges = JarGeneratorLingo.interpret(text);
+		if (charges.isKnown()) {
+			setCharges(charges);
 		}
 	}
 
+	private int lastCheckTick = -1;
+
 	@Subscribe
-	public void onItemContainerChanged(ItemContainerChanged event) {
-		ItemContainer itemContainer = event.getItemContainer();
-		if (itemContainer.getId() == InventoryID.INVENTORY.getId()) {
-			if (client.getItemContainer(InventoryID.INVENTORY).contains(JAR_GENERATOR_ITEM_ID)) {
-				if (infoBox == null) {
-					infoBox = new JarGeneratorInfoBox(jarGeneratorImage, this, config.charges());
-					infoBoxManager.addInfoBox(infoBox);
-				}
-			} else {
-				if (infoBox != null) {
-					infoBoxManager.removeInfoBox(infoBox);
-					infoBox = null;
+	public void onScriptCallbackEvent(ScriptCallbackEvent event) {
+		if ("destroyOnOpKey".equals(event.getEventName())) {
+
+			int yesOption = client.getIntStack()[client.getIntStackSize() - 1];
+			if (yesOption == 1) {
+
+				final int currentTick = client.getTickCount();
+				if (lastCheckTick != currentTick) {
+					lastCheckTick = currentTick;
+
+					final Widget widgetDestroyItemName = client.getWidget(WidgetInfo.DESTROY_ITEM_NAME);
+					if (widgetDestroyItemName != null && widgetDestroyItemName.getText().equals("Jar generator")) {
+						setCharges(Charges.empty());
+					}
 				}
 			}
 		}

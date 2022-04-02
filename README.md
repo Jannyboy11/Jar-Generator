@@ -1,2 +1,2 @@
 # Jar Generator
-Overlays an info box with the number of charges in your jar generator.
+Adds an overlay to the jar generator displaying the number of charges.
