@@ -1,5 +1,7 @@
 package com.janboerman.jargenerator;
 
+import java.util.Arrays;
+
 public abstract class Charges {
 
     private static final int MAX_CHARGES = 100;
@@ -7,6 +9,10 @@ public abstract class Charges {
     private static final Charges[] STATES = new Charges[MAX_CHARGES + 1];   // +1 because both 0 and MAX_CHARGES are included.
 
     public Charges() {
+    }
+
+    static void clearCache() {
+        Arrays.fill(STATES, null);
     }
 
     public static Charges unknown() {
