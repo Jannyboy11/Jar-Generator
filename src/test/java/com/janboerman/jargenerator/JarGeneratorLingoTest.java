@@ -30,7 +30,15 @@ public class JarGeneratorLingoTest {
     }
 
     @Test
-    public void testFull() {
+    public void testNew() {
+        final Charges expected = Charges.full();
+        final Charges actual = JarGeneratorLingo.interpret("You have purchased: Jar generator x1");
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testRecharge() {
         final Charges expected = Charges.full();
         final Charges actual = JarGeneratorLingo.interpret("Elnock recharges your magical jar generator. You now have one hundred charges.");
 
