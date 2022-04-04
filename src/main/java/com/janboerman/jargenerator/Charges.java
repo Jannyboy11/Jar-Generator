@@ -24,7 +24,7 @@ public abstract class Charges {
     }
 
     public static Charges full() {
-        return known(100);
+        return known(MAX_CHARGES);
     }
 
     public static Charges probably(int charges) {
