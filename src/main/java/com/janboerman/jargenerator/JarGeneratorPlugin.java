@@ -21,7 +21,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 @PluginDescriptor(
 	name = "Jar Generator",
 	description = "Overlays impling jar generator charges",
-	tags = {"impling", "jar", "generator", "charge"}
+	tags = {"impling", "butterfly", "jar", "generator", "charge"}
 )
 public class JarGeneratorPlugin extends Plugin
 {
