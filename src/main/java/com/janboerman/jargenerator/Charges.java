@@ -6,13 +6,7 @@ public abstract class Charges {
 
     private static final int MAX_CHARGES = 100;
 
-    private static final Charges[] STATES = new Charges[MAX_CHARGES + 1];   // +1 because both 0 and MAX_CHARGES are included.
-
     public Charges() {
-    }
-
-    static void clearCache() {
-        Arrays.fill(STATES, null);
     }
 
     public static Charges unknown() {
@@ -32,16 +26,7 @@ public abstract class Charges {
     }
 
     public static Charges known(int charges) {
-        if (0 <= charges && charges <= MAX_CHARGES) {
-            Charges chargeState = STATES[charges];
-            if (chargeState == null) {
-                STATES[charges] = chargeState = new ExactlyKnown(charges);
-            }
-            return chargeState;
-        } else {
-            // Unreachable, but just to be future-proof.
-            return new ExactlyKnown(charges);
-        }
+        return new ExactlyKnown(charges);
     }
 
     public abstract boolean isKnown();

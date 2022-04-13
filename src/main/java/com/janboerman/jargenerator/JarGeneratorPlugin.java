@@ -55,7 +55,6 @@ public class JarGeneratorPlugin extends Plugin
 		overlayManager.remove(jarGeneratorOverlay);
 		jarGeneratorOverlay = null;
 		setCharges(Charges.probably(getCharges().getAmount()));
-		Charges.clearCache();
 	}
 
 	public Charges getCharges() {
